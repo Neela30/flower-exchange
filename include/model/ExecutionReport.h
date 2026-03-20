@@ -1,20 +1,48 @@
-#include "Enums.h"
+#pragma once
+
 #include <string>
 
-using namespace std;
-class ExecutionReport
-{
+#include "model/Enums.h"
 
+namespace flower_exchange {
+
+/**
+ * Represents one execution report row emitted by the exchange.
+ */
+class ExecutionReport {
 public:
-    ExecutionReport() {}
+    ExecutionReport();
+    ExecutionReport(std::string orderId,
+                    std::string clientOrderId,
+                    std::string instrument,
+                    Side side,
+                    ExecStatus status,
+                    int executedQuantity,
+                    double executedPrice,
+                    std::string reason,
+                    std::string transactionTime);
+    ~ExecutionReport();
+
+    const std::string& getOrderId() const;
+    const std::string& getClientOrderId() const;
+    const std::string& getInstrument() const;
+    Side getSide() const;
+    ExecStatus getStatus() const;
+    int getExecutedQuantity() const;
+    double getExecutedPrice() const;
+    const std::string& getReason() const;
+    const std::string& getTransactionTime() const;
 
 private:
-    int client_order_id_;
-    int order_id_;
-    Instrument instrument_;
+    std::string orderId_;
+    std::string clientOrderId_;
+    std::string instrument_;
     Side side_;
-    double price_;
-    int quantity_;
-    Status status_;
+    ExecStatus status_;
+    int executedQuantity_;
+    double executedPrice_;
     std::string reason_;
+    std::string transactionTime_;
 };
+
+}  // namespace flower_exchange
