@@ -20,7 +20,10 @@ public:
     Exchange();
     ~Exchange();
 
+    // Creates one order book per configured instrument.
     void initializeBooks();
+
+    // Routes one order to its instrument book.
     std::vector<ExecutionReport> processOrder(Order order, const TimeProvider& timeProvider);
 
 private:
