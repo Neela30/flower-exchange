@@ -9,13 +9,14 @@ ExchangeApplication::ExchangeApplication()
       exchange_(),
       idGenerator_(),
       timeProvider_(),
-      nextSequenceNumber_(1) {}
+      nextSequenceNumber(1) {}
 
 ExchangeApplication::~ExchangeApplication() = default;
 
 std::vector<ExecutionReport> ExchangeApplication::submitOrder(Order order) {
+    // Assign exchange-generated metadata before validation/matching.
     order.setOrderId(idGenerator_.nextOrderId());
-    order.setSequenceNumber(nextSequenceNumber_++);
+    order.setSequenceNumber(nextSequenceNumber++);
 
     std::string reason;
     if (!validator_.validate(order, reason)) {
@@ -32,8 +33,8 @@ ExecutionReport ExchangeApplication::createRejectedReport(const Order& order,
                            order.getInstrument(),
                            order.getSide(),
                            ExecStatus::Rejected,
-                           0,
-                           0.0,
+                           order.getQuantity(),
+                           order.getPrice(),
                            reason,
                            timeProvider_.nowAsString());
 }

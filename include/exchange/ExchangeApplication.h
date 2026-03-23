@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "common/IdGenerator.h"
@@ -20,7 +21,10 @@ public:
     ExchangeApplication();
     ~ExchangeApplication();
 
+    // Assigns exchange metadata, validates, and routes one order.
     std::vector<ExecutionReport> submitOrder(Order order);
+
+    // Builds a rejected execution report for a failed order.
     ExecutionReport createRejectedReport(const Order& order, const std::string& reason) const;
 
 private:
@@ -28,7 +32,7 @@ private:
     Exchange exchange_;
     IdGenerator idGenerator_;
     TimeProvider timeProvider_;
-    std::uint64_t nextSequenceNumber_;
+    std::uint64_t nextSequenceNumber;
 };
 
 }  // namespace flower_exchange
