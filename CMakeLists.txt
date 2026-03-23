@@ -22,6 +22,7 @@ add_library(flower_exchange_core
     src/io/CsvOrderReader.cpp
     src/io/CsvExecutionReportWriter.cpp
     src/io/TimeProvider.cpp
+    src/common/IdGenerator.cpp
 )
 
 target_include_directories(flower_exchange_core

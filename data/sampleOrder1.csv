@@ -1,0 +1,2 @@
+client_order_id,instrument,side,quantity,price
+client-1,Rose,Buy,10,12.5
