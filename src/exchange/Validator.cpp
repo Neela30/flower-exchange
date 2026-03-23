@@ -1,5 +1,7 @@
 #include "exchange/Validator.h"
 
+#include <string_view>
+
 #include "model/Constants.h"
 
 namespace flower_exchange {
