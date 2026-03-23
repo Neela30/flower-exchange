@@ -31,7 +31,7 @@ private:
     Validator validator_;
     Exchange exchange_;
     IdGenerator idGenerator_;
-    TimeProvider timeProvider_;
+    TimeProvider timeProvider;
     std::uint64_t nextSequenceNumber;
 };
 
