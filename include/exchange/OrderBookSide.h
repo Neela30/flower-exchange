@@ -23,6 +23,8 @@ public:
     std::list<Order>& getOrders();
     const std::list<Order>& getOrders() const;
     Side getSide() const;
+    bool betterPrice(const Order& current, const Order& newOrder);
+    bool samePriceHigherPriority(const Order& current, const Order& newOrder);
 
 private:
     Side side_;

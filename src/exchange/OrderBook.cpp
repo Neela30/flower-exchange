@@ -7,25 +7,35 @@
 
 namespace flower_exchange {
 
-OrderBook::OrderBook(std::string instrument, MatchingEngine& matchingEngine)
-    : instrument_(std::move(instrument)),
-      buySide_(Side::Buy),
-      sellSide_(Side::Sell),
-      matchingEngine_(matchingEngine) {}
+OrderBook::OrderBook(std::string instrument, MatchingEngine& matchingEngine):
+    instrument_(std::move(instrument)),
+    buySide_(Side::Buy),
+    sellSide_(Side::Sell),
+    matchingEngine_(matchingEngine) {}
 
 OrderBook::~OrderBook() = default;
 
-std::vector<ExecutionReport> OrderBook::processOrder(Order order,
-                                                     const TimeProvider& timeProvider) {
+std::vector<ExecutionReport> OrderBook::processOrder(Order order, const TimeProvider& timeProvider) {
     OrderBookSide& sameSide = order.isBuy() ? buySide_ : sellSide_;
     OrderBookSide& oppositeSide = order.isBuy() ? sellSide_ : buySide_;
 
     auto reports = matchingEngine_.match(order, oppositeSide, sameSide, timeProvider);
 
-    // TODO: Store residual quantity and emit NEW/PFILL/FILL reports when order-book behavior is implemented.
     if (!order.isFilled()) {
-        (void)sameSide;
+    ExecutionReport reports(
+        order.getOrderId(),
+        order.getClientOrderId(),
+        order.getInstrument(),
+        order.getSide(),
+        order.isPartiallyFilled() ? ExecStatus::Pfill : ExecStatus::New,
+        0,                      // no immediate execution for residual report
+        0.0,
+        std::string{},          // reason (optional)
+        timeProvider.nowAsString());
+     
+
     }
+
 
     return reports;
 }
