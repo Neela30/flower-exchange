@@ -64,4 +64,8 @@ if(BUILD_TESTING)
     add_executable(sample_file_tests tests/SampleFileTests.cpp)
     target_link_libraries(sample_file_tests PRIVATE flower_exchange_core)
     add_test(NAME SampleFileTests COMMAND sample_file_tests)
+
+    add_executable(csv_writer_tests tests/CsvExecutionReportWriterTests.cpp)
+    target_link_libraries(csv_writer_tests PRIVATE flower_exchange_core)
+    add_test(NAME CsvExecutionReportWriterTests COMMAND csv_writer_tests)
 endif()

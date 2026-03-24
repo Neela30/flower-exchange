@@ -10,13 +10,38 @@ OrderBookSide::OrderBookSide(Side side) : side_(side), orders_() {}
 OrderBookSide::~OrderBookSide() = default;
 
 void OrderBookSide::insertOrder(const Order& order) {
-    // TODO: Insert with price-time priority when matching rules are implemented.
-    orders_.push_back(order);
+    auto it = orders_.begin();
+    for (; it != orders_.end(); it++){
+        const Order& current = *it;
+        if (betterPrice(current, order) || samePriceHigherPriority(current, order)){
+            break;
+        }
+   
+    }
+    orders_.insert(it, order);
+}
+
+bool OrderBookSide::betterPrice(const Order& current, const Order& newOrder){
+    if (side_ == Side::Buy){
+        if (newOrder.getPrice()>current.getPrice()){ return true; }
+    } else {
+        if (newOrder.getPrice()<current.getPrice()){ return true; }
+    }
+    return false;
+}
+
+bool OrderBookSide::samePriceHigherPriority(const Order& current, const Order& newOrder){
+    return newOrder.getPrice() == current.getPrice() && newOrder.getSequenceNumber() < current.getSequenceNumber();
 }
 
 void OrderBookSide::insertOrder(Order&& order) {
-    // TODO: Insert with price-time priority when matching rules are implemented.
-    orders_.push_back(std::move(order));
+    auto it = orders_.begin();
+    for (; it != orders_.end(); ++it) {
+        if (betterPrice(*it, order) || samePriceHigherPriority(*it, order)) {
+            break;
+        }
+    }
+    orders_.insert(it, std::move(order));
 }
 
 bool OrderBookSide::empty() const {
