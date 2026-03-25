@@ -5,7 +5,7 @@
 namespace flower_exchange {
 
 /**
- * Abstracts time formatting away from application services and engines.
+ * Small utility that returns the current local timestamp string.
  */
 class TimeProvider {
 public:

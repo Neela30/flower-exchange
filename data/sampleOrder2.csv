@@ -1,0 +1,5 @@
+client_order_id,instrument,side,quantity,price
+scnB-sell-1,Rose,2,30,10.0
+scnB-buy-1,Rose,1,30,11.0
+scnC-sell-1,Rose,2,20,9.0
+scnC-buy-1,Rose,1,50,10.0

@@ -6,9 +6,7 @@
 
 namespace flower_exchange {
 
-/**
- * Provides a dedicated validation boundary before orders reach exchange state.
- */
+// Validates orders against exchange business rules.
 class Validator {
 public:
     Validator();
@@ -19,9 +17,7 @@ public:
     bool isValidQuantity(int quantity) const;
     bool isValidPrice(double price) const;
 
-    /**
-     * Validates a full order and explains the first failure once implemented.
-     */
+    // Validates a full order and returns the first rejection reason.
     bool validate(const Order& order, std::string& reason) const;
 };
 

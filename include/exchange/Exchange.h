@@ -7,6 +7,7 @@
 #include "exchange/MatchingEngine.h"
 #include "exchange/OrderBook.h"
 #include "model/ExecutionReport.h"
+#include "model/Order.h"
 
 namespace flower_exchange {
 
@@ -20,7 +21,10 @@ public:
     Exchange();
     ~Exchange();
 
+    // Creates one order book per configured instrument.
     void initializeBooks();
+
+    // Routes one order to its instrument book.
     std::vector<ExecutionReport> processOrder(Order order, const TimeProvider& timeProvider);
 
 private:

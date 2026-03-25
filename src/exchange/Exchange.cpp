@@ -1,6 +1,7 @@
 #include "exchange/Exchange.h"
 
-#include <tuple>
+#include <string>
+#include <string_view>
 #include <utility>
 
 #include "io/TimeProvider.h"
@@ -17,23 +18,23 @@ Exchange::~Exchange() = default;
 void Exchange::initializeBooks() {
     orderBooks_.clear();
 
-    for (const auto instrument : kValidInstruments) {
-        orderBooks_.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(std::string(instrument)),
-            std::forward_as_tuple(std::string(instrument), matchingEngine_));
+    for (const std::string_view instrument : kValidInstruments) {
+        const std::string instrumentName(instrument);
+        orderBooks_.try_emplace(instrumentName, instrumentName, matchingEngine_);
     }
 }
 
 std::vector<ExecutionReport> Exchange::processOrder(Order order,
                                                     const TimeProvider& timeProvider) {
-    auto iterator = orderBooks_.find(order.getInstrument());
+    const std::string& instrument = order.getInstrument();
+    auto iterator = orderBooks_.find(instrument);
     if (iterator == orderBooks_.end()) {
-        // TODO: Decide whether missing books should be created dynamically or rejected earlier.
+        // Unknown instrument book: no processing is performed.
         return {};
     }
 
-    return iterator->second.processOrder(std::move(order), timeProvider);
+    OrderBook& orderBook = iterator->second;
+    return orderBook.processOrder(std::move(order), timeProvider);
 }
 
 }  // namespace flower_exchange

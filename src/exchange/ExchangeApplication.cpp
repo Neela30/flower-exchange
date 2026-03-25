@@ -8,21 +8,22 @@ ExchangeApplication::ExchangeApplication()
     : validator_(),
       exchange_(),
       idGenerator_(),
-      timeProvider_(),
-      nextSequenceNumber_(1) {}
+      timeProvider(),
+      nextSequenceNumber(1) {}
 
 ExchangeApplication::~ExchangeApplication() = default;
 
 std::vector<ExecutionReport> ExchangeApplication::submitOrder(Order order) {
+    // Assign exchange-generated metadata before validation/matching.
     order.setOrderId(idGenerator_.nextOrderId());
-    order.setSequenceNumber(nextSequenceNumber_++);
+    order.setSequenceNumber(nextSequenceNumber++);
 
     std::string reason;
     if (!validator_.validate(order, reason)) {
         return {createRejectedReport(order, reason)};
     }
 
-    return exchange_.processOrder(std::move(order), timeProvider_);
+    return exchange_.processOrder(std::move(order), timeProvider);
 }
 
 ExecutionReport ExchangeApplication::createRejectedReport(const Order& order,
@@ -32,10 +33,10 @@ ExecutionReport ExchangeApplication::createRejectedReport(const Order& order,
                            order.getInstrument(),
                            order.getSide(),
                            ExecStatus::Rejected,
-                           0,
-                           0.0,
+                           order.getQuantity(),
+                           order.getPrice(),
                            reason,
-                           timeProvider_.nowAsString());
+                           timeProvider.nowAsString());
 }
 
 }  // namespace flower_exchange

@@ -64,7 +64,7 @@ namespace
         sellSide.insertOrder(makeOrder("c2", "o2", Side::Sell, 100, 9.5, 7));
         sellSide.insertOrder(makeOrder("c3", "o3", Side::Sell, 100, 9.5, 5));
 
-        verifyOrderSequence(sellSide, {"o2", "o3", "o1"});
+        verifyOrderSequence(sellSide, {"o3", "o2", "o1"});
     }
 
     void testPopTopRemovesHighestPriority()

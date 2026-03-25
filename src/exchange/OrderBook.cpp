@@ -19,25 +19,22 @@ std::vector<ExecutionReport> OrderBook::processOrder(Order order, const TimeProv
     OrderBookSide& sameSide = order.isBuy() ? buySide_ : sellSide_;
     OrderBookSide& oppositeSide = order.isBuy() ? sellSide_ : buySide_;
 
-    auto reports = matchingEngine_.match(order, oppositeSide, sameSide, timeProvider);
+    auto executionReports = matchingEngine_.match(order, oppositeSide, sameSide, timeProvider);
 
     if (!order.isFilled()) {
-    ExecutionReport reports(
-        order.getOrderId(),
-        order.getClientOrderId(),
-        order.getInstrument(),
-        order.getSide(),
-        order.isPartiallyFilled() ? ExecStatus::Pfill : ExecStatus::New,
-        0,                      // no immediate execution for residual report
-        0.0,
-        std::string{},          // reason (optional)
-        timeProvider.nowAsString());
-     
-
+        executionReports.emplace_back(
+            order.getOrderId(),
+            order.getClientOrderId(),
+            order.getInstrument(),
+            order.getSide(),
+            order.isPartiallyFilled() ? ExecStatus::Pfill : ExecStatus::New,
+            0,
+            0.0,
+            std::string{},
+            timeProvider.nowAsString());
     }
 
-
-    return reports;
+    return executionReports;
 }
 
 const std::string& OrderBook::getInstrument() const {
