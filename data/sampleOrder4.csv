@@ -1,0 +1,5 @@
+client_order_id,instrument,side,quantity,price
+scnE-invalid-instrument,InvalidFlower,1,10,10.0
+scnE-invalid-side,Rose,3,10,10.0
+scnE-invalid-quantity,Rose,2,15,10.0
+scnE-invalid-price,Tulip,1,10,0.0
