@@ -7,9 +7,13 @@
 #include <string>
 #include <utility>
 
+
 namespace flower_exchange {
 
 namespace {
+
+constexpr int kInvalidQuantitySentinel = -1;
+constexpr double kInvalidPriceSentinel = -1.0;
 
 std::string trim(const std::string& value) {
     std::size_t begin = 0;
@@ -37,34 +41,36 @@ bool isEmptyLine(const std::string& line) {
 }
 
 int parseIntStrict(const std::string& value, const char* fieldName) {
+    (void)fieldName;
     std::size_t parsedCount = 0;
     int parsedValue = 0;
 
     try {
         parsedValue = std::stoi(value, &parsedCount);
     } catch (const std::exception&) {
-        throw std::runtime_error(std::string("Invalid integer for ") + fieldName);
+        return kInvalidQuantitySentinel;
     }
 
     if (parsedCount != value.size()) {
-        throw std::runtime_error(std::string("Invalid integer for ") + fieldName);
+        return kInvalidQuantitySentinel;
     }
 
     return parsedValue;
 }
 
 double parseDoubleStrict(const std::string& value, const char* fieldName) {
+    (void)fieldName;
     std::size_t parsedCount = 0;
     double parsedValue = 0.0;
 
     try {
         parsedValue = std::stod(value, &parsedCount);
     } catch (const std::exception&) {
-        throw std::runtime_error(std::string("Invalid decimal for ") + fieldName);
+        return kInvalidPriceSentinel;
     }
 
     if (parsedCount != value.size()) {
-        throw std::runtime_error(std::string("Invalid decimal for ") + fieldName);
+        return kInvalidPriceSentinel;
     }
 
     return parsedValue;
@@ -77,7 +83,7 @@ Side parseSide(const std::string& value) {
     if (value == "2" || value == "Sell" || value == "sell") {
         return Side::Sell;
     }
-    throw std::runtime_error("Invalid side value");
+    return Side::Invalid;
 }
 
 }  // namespace
