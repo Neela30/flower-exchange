@@ -17,8 +17,10 @@ std::string TimeProvider::nowAsString() const {
 
     std::tm timeInfo{};
 #if defined(_WIN32)
+    // Windows secure local time conversion.
     localtime_s(&timeInfo, &currentTime);
 #else
+    // POSIX thread-safe local time conversion.
     localtime_r(&currentTime, &timeInfo);
 #endif
 

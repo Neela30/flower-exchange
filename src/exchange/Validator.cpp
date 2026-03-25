@@ -1,38 +1,59 @@
 #include "exchange/Validator.h"
 
+#include <string_view>
+
+#include "model/Constants.h"
+
 namespace flower_exchange {
 
 Validator::Validator() = default;
-
 Validator::~Validator() = default;
 
 bool Validator::isValidInstrument(const std::string& instrument) const {
-    (void)instrument;
-    // TODO: Implement instrument lookup against the configured instrument list.
-    return true;
+    for (const std::string_view validInstrument : kValidInstruments) {
+        if (instrument == validInstrument) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Validator::isValidSide(Side side) const {
-    (void)side;
-    // TODO: Implement side validation once parsing rules are finalized.
-    return true;
+    return side == Side::Buy || side == Side::Sell;
 }
 
 bool Validator::isValidQuantity(int quantity) const {
-    (void)quantity;
-    // TODO: Implement quantity range and step validation.
-    return true;
+    if (quantity < kMinQuantity || quantity > kMaxQuantity) {
+        return false;
+    }
+    return quantity % kQuantityStep == 0;
 }
 
 bool Validator::isValidPrice(double price) const {
-    (void)price;
-    // TODO: Implement minimum price and precision validation.
-    return true;
+    return price > kMinPrice;
 }
 
 bool Validator::validate(const Order& order, std::string& reason) const {
-    (void)order;
-    // TODO: Compose the field-level validation results and return a descriptive reason.
+    if (!isValidInstrument(order.getInstrument())) {
+        reason = "Invalid instrument";
+        return false;
+    }
+
+    if (!isValidSide(order.getSide())) {
+        reason = "Invalid side";
+        return false;
+    }
+
+    if (!isValidQuantity(order.getQuantity())) {
+        reason = "Invalid quantity";
+        return false;
+    }
+
+    if (!isValidPrice(order.getPrice())) {
+        reason = "Invalid price";
+        return false;
+    }
+
     reason.clear();
     return true;
 }
