@@ -1,8 +1,9 @@
 #include "io/CsvOrderReader.h"
 
+#include <charconv>
 #include <cctype>
 #include <fstream>
-#include <sstream>
+#include <string_view>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -11,20 +12,18 @@ namespace flower_exchange {
 
 namespace {
 
-std::string trim(const std::string& value) {
-    std::size_t begin = 0;
-    while (begin < value.size() &&
-           std::isspace(static_cast<unsigned char>(value[begin])) != 0) {
-        ++begin;
+std::string_view trimView(std::string_view value) {
+    while (!value.empty() &&
+           std::isspace(static_cast<unsigned char>(value.front())) != 0) {
+        value.remove_prefix(1);
     }
 
-    std::size_t end = value.size();
-    while (end > begin &&
-           std::isspace(static_cast<unsigned char>(value[end - 1])) != 0) {
-        --end;
+    while (!value.empty() &&
+           std::isspace(static_cast<unsigned char>(value.back())) != 0) {
+        value.remove_suffix(1);
     }
 
-    return value.substr(begin, end - begin);
+    return value;
 }
 
 bool isEmptyLine(const std::string& line) {
@@ -36,41 +35,47 @@ bool isEmptyLine(const std::string& line) {
     return true;
 }
 
-int parseIntStrict(const std::string& value, const char* fieldName) {
-    std::size_t parsedCount = 0;
-    int parsedValue = 0;
-
-    try {
-        parsedValue = std::stoi(value, &parsedCount);
-    } catch (const std::exception&) {
+int parseIntStrict(std::string_view value, const char* fieldName) {
+    value = trimView(value);
+    if (value.empty()) {
         throw std::runtime_error(std::string("Invalid integer for ") + fieldName);
     }
 
-    if (parsedCount != value.size()) {
+    int parsedValue = 0;
+    const auto result = std::from_chars(value.data(), value.data() + value.size(), parsedValue);
+    if (result.ec != std::errc() || result.ptr != value.data() + value.size()) {
         throw std::runtime_error(std::string("Invalid integer for ") + fieldName);
     }
 
     return parsedValue;
 }
 
-double parseDoubleStrict(const std::string& value, const char* fieldName) {
+double parseDoubleStrict(std::string_view value, const char* fieldName) {
+    value = trimView(value);
+    if (value.empty()) {
+        throw std::runtime_error(std::string("Invalid decimal for ") + fieldName);
+    }
+
+    const std::string valueBuffer(value);
     std::size_t parsedCount = 0;
     double parsedValue = 0.0;
 
     try {
-        parsedValue = std::stod(value, &parsedCount);
+        parsedValue = std::stod(valueBuffer, &parsedCount);
     } catch (const std::exception&) {
         throw std::runtime_error(std::string("Invalid decimal for ") + fieldName);
     }
 
-    if (parsedCount != value.size()) {
+    if (parsedCount != valueBuffer.size()) {
         throw std::runtime_error(std::string("Invalid decimal for ") + fieldName);
     }
 
     return parsedValue;
 }
 
-Side parseSide(const std::string& value) {
+Side parseSide(std::string_view value) {
+    value = trimView(value);
+
     if (value == "1" || value == "Buy" || value == "buy") {
         return Side::Buy;
     }
@@ -93,6 +98,12 @@ std::vector<Order> CsvOrderReader::readOrders(const std::string& filePath) const
     }
 
     std::vector<Order> orders;
+    input.seekg(0, std::ios::end);
+    const std::streamoff fileSize = input.tellg();
+    if (fileSize > 0) {
+        orders.reserve(static_cast<std::size_t>(fileSize / 32));
+    }
+    input.seekg(0, std::ios::beg);
 
     std::string line;
     bool isFirstRow = true;
@@ -108,40 +119,46 @@ std::vector<Order> CsvOrderReader::readOrders(const std::string& filePath) const
             continue;
         }
 
-        orders.push_back(parseLine(line));
+        orders.emplace_back(parseLine(line));
     }
 
     return orders;
 }
 
 Order CsvOrderReader::parseLine(const std::string& line) const {
-    std::stringstream stream(line);
+    std::string_view remaining(line);
+    std::string_view fields[5];
 
-    std::string clientOrderId;
-    std::string instrument;
-    std::string sideToken;
-    std::string quantityToken;
-    std::string priceToken;
+    for (int index = 0; index < 4; ++index) {
+        const std::size_t commaPosition = remaining.find(',');
+        if (commaPosition == std::string_view::npos) {
+            throw std::runtime_error("Malformed CSV line");
+        }
 
-    if (!std::getline(stream, clientOrderId, ',') ||
-        !std::getline(stream, instrument, ',') ||
-        !std::getline(stream, sideToken, ',') ||
-        !std::getline(stream, quantityToken, ',') ||
-        !std::getline(stream, priceToken, ',')) {
-        throw std::runtime_error("Malformed CSV line");
+        fields[index] = remaining.substr(0, commaPosition);
+        remaining.remove_prefix(commaPosition + 1);
     }
 
-    clientOrderId = trim(clientOrderId);
-    instrument = trim(instrument);
-    sideToken = trim(sideToken);
-    quantityToken = trim(quantityToken);
-    priceToken = trim(priceToken);
+    const std::size_t priceCommaPosition = remaining.find(',');
+    fields[4] = priceCommaPosition == std::string_view::npos
+                    ? remaining
+                    : remaining.substr(0, priceCommaPosition);
 
-    const Side side = parseSide(sideToken);
-    const int quantity = parseIntStrict(quantityToken, "quantity");
-    const double price = parseDoubleStrict(priceToken, "price");
+    const std::string_view clientOrderIdView = trimView(fields[0]);
+    const std::string_view instrumentView = trimView(fields[1]);
+    const std::string_view sideTokenView = trimView(fields[2]);
+    const std::string_view quantityTokenView = trimView(fields[3]);
+    const std::string_view priceTokenView = trimView(fields[4]);
 
-    return Order(std::move(clientOrderId), std::move(instrument), side, quantity, price);
+    const Side side = parseSide(sideTokenView);
+    const int quantity = parseIntStrict(quantityTokenView, "quantity");
+    const double price = parseDoubleStrict(priceTokenView, "price");
+
+    return Order(std::string(clientOrderIdView),
+                 std::string(instrumentView),
+                 side,
+                 quantity,
+                 price);
 }
 
 }  // namespace flower_exchange
