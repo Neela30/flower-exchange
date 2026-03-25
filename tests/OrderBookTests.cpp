@@ -53,12 +53,15 @@ namespace
 
         auto reports = book.processOrder(incoming, timeProvider);
 
-        expect(reports.size() == 2, "OrderBook should surface matching engine reports");
+        expect(reports.size() == 3, "OrderBook should surface matching reports and residual status");
         expect(reports[0].getOrderId() == "inc-1", "Incoming order report missing");
         expect(reports[0].getStatus() == ExecStatus::Pfill, "Incoming order should be partially filled");
         expect(reports[0].getExecutedQuantity() == 30, "Executed quantity mismatch for incoming order");
         expect(reports[1].getOrderId() == "rest-1", "Resting order report missing");
         expect(reports[1].getStatus() == ExecStatus::Fill, "Resting order should be filled");
+        expect(reports[2].getOrderId() == "inc-1", "Residual incoming report missing");
+        expect(reports[2].getStatus() == ExecStatus::Pfill, "Residual incoming status should be Pfill");
+        expect(reports[2].getExecutedQuantity() == 0, "Residual incoming executed quantity should be zero");
 
         expect(book.getSellSide().empty(), "Filled resting sell should be removed from the book");
         expect(!book.getBuySide().empty(), "Residual buy quantity should rest on the book");
@@ -75,7 +78,10 @@ namespace
 
         auto reports = book.processOrder(incoming, timeProvider);
 
-        expect(reports.empty(), "No matches should yield no execution reports");
+        expect(reports.size() == 1, "Residual resting order should produce a New execution report");
+        expect(reports[0].getOrderId() == "inc-2", "Residual report order ID mismatch");
+        expect(reports[0].getStatus() == ExecStatus::New, "Residual report status should be New");
+        expect(reports[0].getExecutedQuantity() == 0, "Residual report executed quantity should be zero");
         expect(!book.getBuySide().empty(), "Incoming order should rest on the buy side");
         expect(book.getBuySide().top().getOrderId() == "inc-2", "Residual order ID mismatch");
         expect(book.getBuySide().top().getRemainingQuantity() == 40, "Quantity should remain intact when no match occurs");
