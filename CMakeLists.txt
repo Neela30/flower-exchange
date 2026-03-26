@@ -89,6 +89,34 @@ if(BUILD_TESTING)
     target_link_libraries(order_book_side_tests PRIVATE flower_exchange_core)
     add_test(NAME OrderBookSideTests COMMAND order_book_side_tests)
 
+    add_executable(scenario_example1_tests tests/ScenarioExample1Tests.cpp)
+    target_link_libraries(scenario_example1_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample1Tests COMMAND scenario_example1_tests)
+
+    add_executable(scenario_example2_tests tests/ScenarioExample2Tests.cpp)
+    target_link_libraries(scenario_example2_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample2Tests COMMAND scenario_example2_tests)
+
+    add_executable(scenario_example3_tests tests/ScenarioExample3Tests.cpp)
+    target_link_libraries(scenario_example3_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample3Tests COMMAND scenario_example3_tests)
+
+    add_executable(scenario_example4_tests tests/ScenarioExample4Tests.cpp)
+    target_link_libraries(scenario_example4_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample4Tests COMMAND scenario_example4_tests)
+
+    add_executable(scenario_example5_tests tests/ScenarioExample5Tests.cpp)
+    target_link_libraries(scenario_example5_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample5Tests COMMAND scenario_example5_tests)
+
+    add_executable(scenario_example6_tests tests/ScenarioExample6Tests.cpp)
+    target_link_libraries(scenario_example6_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample6Tests COMMAND scenario_example6_tests)
+
+    add_executable(scenario_example7_validation_tests tests/ScenarioExample7ValidationTests.cpp)
+    target_link_libraries(scenario_example7_validation_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample7ValidationTests COMMAND scenario_example7_validation_tests)
+
     add_executable(large_dataset_tests tests/LargeDatasetTests.cpp)
     target_link_libraries(large_dataset_tests PRIVATE flower_exchange_core)
 
