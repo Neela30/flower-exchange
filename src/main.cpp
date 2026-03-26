@@ -5,15 +5,27 @@
 #include "trader/TraderApplication.h"
 
 int main(int argc, char* argv[]) {
-    try {
-        const bool useParallelMode = argc > 1 && std::string(argv[1]) == "--parallel";
+    const std::string defaultInputPath = "data/orders.csv";
+    const std::string defaultOutputPath = "output/execution_rep.csv";
 
+    std::string inputPath = defaultInputPath;
+    std::string outputPath = defaultOutputPath;
+
+    if (argc == 3) {
+        inputPath = argv[1];
+        outputPath = argv[2];
+    } else if (argc != 1) {
+        const std::string executableName = argc > 0 ? argv[0] : "flower_exchange";
+        std::cerr << "Usage: " << executableName << " [<input_csv> <output_csv>]\n"
+                  << "Examples:\n"
+                  << "  " << executableName << '\n'
+                  << "  " << executableName << " data/sampleOrder1.csv output/execReports1.csv\n";
+        return 1;
+    }
+
+    try {
         flower_exchange::TraderApplication application;
-        if (useParallelMode) {
-            application.runParallel("data/orders.csv", "output/execution_rep.csv");
-        } else {
-            application.run("data/orders.csv", "output/execution_rep.csv");
-        }
+        application.run(inputPath, outputPath);
         return 0;
     } catch (const std::exception& exception) {
         std::cerr << "FlowerExchange failed: " << exception.what() << '\n';

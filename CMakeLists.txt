@@ -45,6 +45,21 @@ target_link_libraries(flower_exchange
         flower_exchange_core
 )
 
+add_executable(large_dataset_generator
+    src/tools/LargeDatasetGenerator.cpp
+)
+
+target_include_directories(large_dataset_generator
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+if(MSVC)
+    target_compile_options(large_dataset_generator PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(large_dataset_generator PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 if(BUILD_TESTING)
     add_executable(validator_tests tests/ValidatorTests.cpp)
     target_link_libraries(validator_tests PRIVATE flower_exchange_core)
@@ -73,4 +88,19 @@ if(BUILD_TESTING)
     add_executable(order_book_side_tests tests/OrderBookSideTests.cpp)
     target_link_libraries(order_book_side_tests PRIVATE flower_exchange_core)
     add_test(NAME OrderBookSideTests COMMAND order_book_side_tests)
+
+    add_executable(large_dataset_tests tests/LargeDatasetTests.cpp)
+    target_link_libraries(large_dataset_tests PRIVATE flower_exchange_core)
+
+    add_test(NAME GenerateLargeDatasets COMMAND large_dataset_generator)
+    set_tests_properties(GenerateLargeDatasets PROPERTIES
+        FIXTURES_SETUP large_data_ready
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+
+    add_test(NAME LargeDatasetTests COMMAND large_dataset_tests)
+    set_tests_properties(LargeDatasetTests PROPERTIES
+        FIXTURES_REQUIRED large_data_ready
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
 endif()

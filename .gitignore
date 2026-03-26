@@ -33,3 +33,5 @@ x86/
 Thumbs.db
 
 Testing/
+
+data/large_*.csv
