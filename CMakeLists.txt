@@ -117,6 +117,18 @@ if(BUILD_TESTING)
     target_link_libraries(scenario_example7_validation_tests PRIVATE flower_exchange_core)
     add_test(NAME ScenarioExample7ValidationTests COMMAND scenario_example7_validation_tests)
 
+    set(SCENARIO_TEST_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests/include)
+    foreach(scenario_target
+            scenario_example1_tests
+            scenario_example2_tests
+            scenario_example3_tests
+            scenario_example4_tests
+            scenario_example5_tests
+            scenario_example6_tests
+            scenario_example7_validation_tests)
+        target_include_directories(${scenario_target} PRIVATE ${SCENARIO_TEST_INCLUDE_DIR})
+    endforeach()
+
     add_executable(large_dataset_tests tests/LargeDatasetTests.cpp)
     target_link_libraries(large_dataset_tests PRIVATE flower_exchange_core)
 

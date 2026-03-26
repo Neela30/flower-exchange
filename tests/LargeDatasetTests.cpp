@@ -26,7 +26,7 @@ std::filesystem::path projectRoot() {
 }
 
 std::filesystem::path dataPath(const std::string& fileName) {
-    return projectRoot() / "data" / fileName;
+    return projectRoot() / "generated_data" / fileName;
 }
 
 void expect(bool condition, const std::string& message) {

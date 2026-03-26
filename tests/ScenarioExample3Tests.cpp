@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-#include "ScenarioTestUtils.h"
+#include "test_utils/ScenarioTestUtils.h"
 
 namespace {
 

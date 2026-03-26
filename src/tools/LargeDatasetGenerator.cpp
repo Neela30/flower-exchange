@@ -244,7 +244,7 @@ void generateHotspot(const std::filesystem::path& outputPath,
 
 int main() {
     try {
-        const std::filesystem::path outputDirectory = projectRoot() / "data";
+        const std::filesystem::path outputDirectory = projectRoot() / "generated_data";
         std::filesystem::create_directories(outputDirectory);
 
         generateBalanced(outputDirectory / "large_balanced_10k.csv", 10000, 1337);

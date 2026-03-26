@@ -1,37 +1,57 @@
-build/
-cmake-build-*/
-CMakeFiles/
-CMakeCache.txt
+# Build directories
+/build/
+/cmake-build-*/
+/CMakeFiles/
+/Debug/
+/Release/
+/x64/
+/x86/
 
-*.cmake
+# CMake generated files
+/CMakeCache.txt
+/cmake_install.cmake
+/CTestTestfile.cmake
+/compile_commands.json
+/Testing/
 
+# MSVC / Visual Studio
+/.vs/
 *.sln
-*.vcxproj*
+*.vcxproj
+*.vcxproj.*
 *.vcxproj.filters
 *.vcxproj.user
+*.ilk
+*.pdb
+*.idb
 
+# Compiler / linker outputs
 *.exe
 *.out
 *.app
-
 *.o
 *.obj
+*.a
 *.lib
 *.dll
 *.so
 *.dylib
 
-Debug/
-Release/
-x64/
-x86/
-
+# Logs / temp files
 *.log
 *.tmp
+*.temp
+*.bak
 
+# Editor / OS
 .DS_Store
 Thumbs.db
+/.vscode/
 
-Testing/
+# Runtime outputs
+/output/*
+!/output/.gitkeep
 
-data/large_*.csv
+# Generated large datasets
+/generated_data/
+/data/large_*.csv
