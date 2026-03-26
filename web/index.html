@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flower Exchange</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo" aria-hidden="true">🌸</div>
+      <div class="header-text">
+        <h1>FLOWER EXCHANGE</h1>
+        <p>Execution Report Viewer</p>
+      </div>
+      <span class="badge">LSEG · GROUP P</span>
+    </header>
+
+    <div id="statusBanner" class="status-banner hidden"></div>
+
+    <section class="upload-section">
+      <div id="dropZone" class="upload-zone" role="button" tabindex="0">
+        <span class="upload-icon" aria-hidden="true">📂</span>
+        <h3>Drop your orders.csv here</h3>
+        <p>or click to browse</p>
+        <div id="fileInfo" class="file-selected hidden">
+          <span class="check">✓</span>
+          <span id="fileName"></span>
+        </div>
+        <div class="upload-actions">
+          <button id="sampleBtn" class="btn btn-outline" type="button">⚡ Load Sample Data</button>
+          <button id="downloadBtn" class="btn btn-primary" type="button" disabled>⬇ Download Execution CSV</button>
+        </div>
+        <div id="uploadHint" class="upload-hint">Upload a CSV to process it on the engine.</div>
+      </div>
+      <input id="fileInput" type="file" accept=".csv" aria-label="Upload orders CSV">
+    </section>
+
+    <section class="stats-row" id="statsRow">
+      <article class="stat-card new">
+        <div class="stat-label">New</div>
+        <div class="stat-value" id="countNew">0</div>
+      </article>
+      <article class="stat-card fill">
+        <div class="stat-label">Fill</div>
+        <div class="stat-value" id="countFill">0</div>
+      </article>
+      <article class="stat-card pfill">
+        <div class="stat-label">PFill</div>
+        <div class="stat-value" id="countPfill">0</div>
+      </article>
+      <article class="stat-card reject">
+        <div class="stat-label">Rejected</div>
+        <div class="stat-value" id="countReject">0</div>
+      </article>
+    </section>
+
+    <section class="table-section">
+      <div class="table-header">
+        <span class="table-title">Execution Reports</span>
+        <div class="filter-pills">
+          <button class="pill active" data-filter="ALL" type="button">All</button>
+          <button class="pill" data-filter="New" type="button">New</button>
+          <button class="pill" data-filter="Fill" type="button">Fill</button>
+          <button class="pill" data-filter="PFill" type="button">PFill</button>
+          <button class="pill" data-filter="Rejected" type="button">Reject</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table aria-live="polite">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Client Ord. ID</th>
+              <th>Instrument</th>
+              <th>Side</th>
+              <th>Status</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Reason</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="9">
+                <div class="empty-state">
+                  <div class="icon" aria-hidden="true">🌷</div>
+                  <p>Load an orders.csv or use sample data to see execution reports</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
