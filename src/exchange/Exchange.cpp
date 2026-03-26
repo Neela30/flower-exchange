@@ -16,24 +16,32 @@ Exchange::Exchange() : orderBooks_(), matchingEngine_() {
 Exchange::~Exchange() = default;
 
 void Exchange::initializeBooks() {
+    std::unique_lock<std::shared_mutex> indexLock(orderBooksIndexMutex_);
     orderBooks_.clear();
+    orderBookMutexes_.clear();
 
     for (const std::string_view instrument : kValidInstruments) {
         const std::string instrumentName(instrument);
         orderBooks_.try_emplace(instrumentName, instrumentName, matchingEngine_);
+        orderBookMutexes_.try_emplace(instrumentName);
     }
 }
 
 std::vector<ExecutionReport> Exchange::processOrder(Order order,
                                                     const TimeProvider& timeProvider) {
+    // Shared lock protects map/index lifetime while allowing concurrent reads.
+    std::shared_lock<std::shared_mutex> indexLock(orderBooksIndexMutex_);
     const std::string& instrument = order.getInstrument();
-    auto iterator = orderBooks_.find(instrument);
-    if (iterator == orderBooks_.end()) {
+    auto bookIterator = orderBooks_.find(instrument);
+    auto mutexIterator = orderBookMutexes_.find(instrument);
+    if (bookIterator == orderBooks_.end() || mutexIterator == orderBookMutexes_.end()) {
         // Unknown instrument book: no processing is performed.
         return {};
     }
 
-    OrderBook& orderBook = iterator->second;
+    // Lock only one instrument book so different instruments can process concurrently.
+    std::lock_guard<std::mutex> lock(mutexIterator->second);
+    OrderBook& orderBook = bookIterator->second;
     return orderBook.processOrder(std::move(order), timeProvider);
 }
 

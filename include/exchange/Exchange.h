@@ -1,6 +1,8 @@
 #pragma once
 
 #include <map>
+#include <mutex>
+#include <shared_mutex>
 #include <string>
 #include <vector>
 
@@ -28,7 +30,9 @@ public:
     std::vector<ExecutionReport> processOrder(Order order, const TimeProvider& timeProvider);
 
 private:
+    mutable std::shared_mutex orderBooksIndexMutex_;
     std::map<std::string, OrderBook> orderBooks_;
+    std::map<std::string, std::mutex> orderBookMutexes_;
     MatchingEngine matchingEngine_;
 };
 

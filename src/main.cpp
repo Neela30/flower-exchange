@@ -4,43 +4,28 @@
 
 #include "trader/TraderApplication.h"
 
-namespace
-{
+int main(int argc, char* argv[]) {
+    const std::string defaultInputPath = "data/orders.csv";
+    const std::string defaultOutputPath = "output/execution_rep.csv";
 
-    void printUsage(const char *executable)
-    {
-        std::cerr << "Usage: " << executable << " <input_csv> <output_csv>" << std::endl;
+    std::string inputPath = defaultInputPath;
+    std::string outputPath = defaultOutputPath;
+
+    if (argc == 3) {
+        inputPath = argv[1];
+        outputPath = argv[2];
+    } else if (argc != 1) {
+        const std::string executableName = argc > 0 ? argv[0] : "flower_exchange";
+        std::cerr << "Usage: " << executableName << " [<input_csv> <output_csv>]\n"
+                  << "Examples:\n"
+                  << "  " << executableName << '\n'
+                  << "  " << executableName << " data/sampleOrder1.csv output/execReports1.csv\n";
+        return 1;
     }
 
-} // namespace
-
-int main(int argc, char *argv[])
-{
-    try
-    {
-        std::string inputPath = "data/sampleOrder3.csv";
-        std::string outputPath = "output/execution_rep.csv";
-
-        if (argc == 1)
-        {
-            std::cout
-                << "No CLI arguments detected. Using default dataset data/sampleOrder3.csv and writing to output/execution_rep.csv."
-                << std::endl;
-        }
-        else if (argc == 3)
-        {
-            inputPath = argv[1];
-            outputPath = argv[2];
-        }
-        else
-        {
-            printUsage(argv[0]);
-            return 1;
-        }
-
+    try {
         flower_exchange::TraderApplication application;
         application.run(inputPath, outputPath);
-        std::cout << "Execution report written to " << outputPath << std::endl;
         return 0;
     }
     catch (const std::exception &exception)

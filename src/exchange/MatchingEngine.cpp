@@ -40,6 +40,7 @@ namespace flower_exchange
                                                        const TimeProvider &timeProvider) const
     {
         std::vector<ExecutionReport> reports;
+        reports.reserve(8);
         while (!incoming.isFilled())
         {
             if (oppositeSide.empty())
@@ -66,7 +67,7 @@ namespace flower_exchange
 
             const std::string timestamp = timeProvider.nowAsString();
 
-            ExecutionReport report1(
+            reports.emplace_back(
                 incoming.getOrderId(),
                 incoming.getClientOrderId(),
                 incoming.getInstrument(),
@@ -77,9 +78,7 @@ namespace flower_exchange
                 std::string{},
                 timestamp);
 
-            reports.push_back(report1);
-
-            ExecutionReport report2(
+            reports.emplace_back(
                 resting.getOrderId(),
                 resting.getClientOrderId(),
                 resting.getInstrument(),
@@ -89,8 +88,6 @@ namespace flower_exchange
                 executionPrice,
                 std::string{},
                 timestamp);
-
-            reports.push_back(report2);
 
             if (resting.isFilled())
             {

@@ -1,24 +1,40 @@
-build/
-cmake-build-*/
-CMakeFiles/
-CMakeCache.txt
+# Build directories
+/build/
+/cmake-build-*/
+/CMakeFiles/
+/Debug/
+/Release/
+/x64/
+/x86/
 
-*.cmake
+# CMake generated files
+/CMakeCache.txt
+/cmake_install.cmake
+/CTestTestfile.cmake
+/compile_commands.json
+/Testing/
 
 # IDE and editor settings
 .vscode/
 
+# MSVC / Visual Studio
+/.vs/
 *.sln
-*.vcxproj*
+*.vcxproj
+*.vcxproj.*
 *.vcxproj.filters
 *.vcxproj.user
+*.ilk
+*.pdb
+*.idb
 
+# Compiler / linker outputs
 *.exe
 *.out
 *.app
-
 *.o
 *.obj
+*.a
 *.lib
 *.dll
 *.so
@@ -36,13 +52,25 @@ env/
 __pycache__/
 *.py[cod]
 
+# Logs / temp files
 *.log
 *.tmp
+*.temp
+*.bak
 
+# Editor / OS
 .DS_Store
 Thumbs.db
+/.vscode/
 
 Testing/
 
 # Generated runtime data
 output/
+# Runtime outputs
+/output/*
+!/output/.gitkeep
+
+# Generated large datasets
+/generated_data/
+/data/large_*.csv
