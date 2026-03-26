@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -31,8 +32,8 @@ private:
     Validator validator_;
     Exchange exchange_;
     IdGenerator idGenerator_;
-    TimeProvider timeProvider;
-    std::uint64_t nextSequenceNumber;
+    TimeProvider timeProvider_;
+    std::atomic<std::uint64_t> nextSequenceNumber_;
 };
 
 }  // namespace flower_exchange

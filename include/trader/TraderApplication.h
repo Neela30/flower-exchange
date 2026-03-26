@@ -22,6 +22,11 @@ public:
      */
     void run(const std::string& inputFile, const std::string& outputFile);
 
+    /**
+     * Optional large-input mode: process orders per instrument concurrently.
+     */
+    void runParallel(const std::string& inputFile, const std::string& outputFile);
+
 private:
     CsvOrderReader reader_;
     ExchangeApplication exchangeApplication_;

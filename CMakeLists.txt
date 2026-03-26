@@ -45,6 +45,21 @@ target_link_libraries(flower_exchange
         flower_exchange_core
 )
 
+add_executable(large_dataset_generator
+    src/tools/LargeDatasetGenerator.cpp
+)
+
+target_include_directories(large_dataset_generator
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+if(MSVC)
+    target_compile_options(large_dataset_generator PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(large_dataset_generator PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 if(BUILD_TESTING)
     add_executable(validator_tests tests/ValidatorTests.cpp)
     target_link_libraries(validator_tests PRIVATE flower_exchange_core)
@@ -73,4 +88,59 @@ if(BUILD_TESTING)
     add_executable(order_book_side_tests tests/OrderBookSideTests.cpp)
     target_link_libraries(order_book_side_tests PRIVATE flower_exchange_core)
     add_test(NAME OrderBookSideTests COMMAND order_book_side_tests)
+
+    add_executable(scenario_example1_tests tests/ScenarioExample1Tests.cpp)
+    target_link_libraries(scenario_example1_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample1Tests COMMAND scenario_example1_tests)
+
+    add_executable(scenario_example2_tests tests/ScenarioExample2Tests.cpp)
+    target_link_libraries(scenario_example2_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample2Tests COMMAND scenario_example2_tests)
+
+    add_executable(scenario_example3_tests tests/ScenarioExample3Tests.cpp)
+    target_link_libraries(scenario_example3_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample3Tests COMMAND scenario_example3_tests)
+
+    add_executable(scenario_example4_tests tests/ScenarioExample4Tests.cpp)
+    target_link_libraries(scenario_example4_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample4Tests COMMAND scenario_example4_tests)
+
+    add_executable(scenario_example5_tests tests/ScenarioExample5Tests.cpp)
+    target_link_libraries(scenario_example5_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample5Tests COMMAND scenario_example5_tests)
+
+    add_executable(scenario_example6_tests tests/ScenarioExample6Tests.cpp)
+    target_link_libraries(scenario_example6_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample6Tests COMMAND scenario_example6_tests)
+
+    add_executable(scenario_example7_validation_tests tests/ScenarioExample7ValidationTests.cpp)
+    target_link_libraries(scenario_example7_validation_tests PRIVATE flower_exchange_core)
+    add_test(NAME ScenarioExample7ValidationTests COMMAND scenario_example7_validation_tests)
+
+    set(SCENARIO_TEST_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests/include)
+    foreach(scenario_target
+            scenario_example1_tests
+            scenario_example2_tests
+            scenario_example3_tests
+            scenario_example4_tests
+            scenario_example5_tests
+            scenario_example6_tests
+            scenario_example7_validation_tests)
+        target_include_directories(${scenario_target} PRIVATE ${SCENARIO_TEST_INCLUDE_DIR})
+    endforeach()
+
+    add_executable(large_dataset_tests tests/LargeDatasetTests.cpp)
+    target_link_libraries(large_dataset_tests PRIVATE flower_exchange_core)
+
+    add_test(NAME GenerateLargeDatasets COMMAND large_dataset_generator)
+    set_tests_properties(GenerateLargeDatasets PROPERTIES
+        FIXTURES_SETUP large_data_ready
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+
+    add_test(NAME LargeDatasetTests COMMAND large_dataset_tests)
+    set_tests_properties(LargeDatasetTests PROPERTIES
+        FIXTURES_REQUIRED large_data_ready
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
 endif()

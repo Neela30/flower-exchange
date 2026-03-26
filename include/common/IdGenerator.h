@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <string>
 
 namespace flower_exchange {
@@ -13,7 +14,7 @@ public:
     std::string nextOrderId();
 
 private:
-    int counter;
+    std::atomic<int> counter_;
 };
 
 }  // namespace flower_exchange

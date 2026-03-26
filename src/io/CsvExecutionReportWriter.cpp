@@ -1,6 +1,7 @@
 #include "io/CsvExecutionReportWriter.h"
 
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 
 #include "model/Constants.h"
@@ -23,11 +24,12 @@ namespace flower_exchange
             throw std::runtime_error("Failed to open execution report file: " + filePath);
         }
 
-        output << kExecutionReportCsvHeader << '\n';
+        std::ostringstream buffer;
+        buffer << kExecutionReportCsvHeader << '\n';
 
         for (const auto &report : reports)
         {
-            output << report.getOrderId() << ','
+            buffer << report.getOrderId() << ','
                    << report.getClientOrderId() << ','
                    << report.getInstrument() << ','
                    << toString(report.getSide()) << ','
@@ -37,6 +39,8 @@ namespace flower_exchange
                    << report.getReason() << ','
                    << report.getTransactionTime() << '\n';
         }
+
+        output << buffer.str();
     }
 
 } // namespace flower_exchange
