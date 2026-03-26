@@ -18,6 +18,7 @@ add_library(flower_exchange_core
     src/exchange/OrderBook.cpp
     src/exchange/OrderBookSide.cpp
     src/exchange/MatchingEngine.cpp
+    src/exchange/PriceTimePriorityStrategy.cpp
     src/exchange/Validator.cpp
     src/io/CsvOrderReader.cpp
     src/io/CsvExecutionReportWriter.cpp
