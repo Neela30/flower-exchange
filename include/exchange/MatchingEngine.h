@@ -1,7 +1,9 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
+#include "exchange/IMatchingStrategy.h"
 #include "model/ExecutionReport.h"
 #include "model/Order.h"
 
@@ -16,6 +18,7 @@ class TimeProvider;
 class MatchingEngine {
 public:
     MatchingEngine();
+    explicit MatchingEngine(std::unique_ptr<IMatchingStrategy> strategy);
     ~MatchingEngine();
 
     bool canMatch(const Order& incoming, const Order& resting) const;
@@ -28,6 +31,10 @@ public:
                                        OrderBookSide& oppositeSide,
                                        OrderBookSide& sameSide,
                                        const TimeProvider& timeProvider) const;
+
+private:
+    // MatchingEngine owns the active matching policy and delegates rule decisions to it.
+    std::unique_ptr<IMatchingStrategy> strategy_;
 };
 
 }  // namespace flower_exchange
