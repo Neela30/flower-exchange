@@ -9,6 +9,7 @@ cmake -S . -B build
 cmake --build build
 ```
 
+
 The binary accepts optional CLI arguments:
 
 ```bash
