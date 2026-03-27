@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 
     try {
         flower_exchange::TraderApplication application;
-        application.run(inputPath, outputPath);
+        application.runParallel(inputPath, outputPath);
         return 0;
     }
     catch (const std::exception &exception)
