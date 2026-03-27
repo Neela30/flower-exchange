@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flower Exchange</title>
+  <link rel="icon" href="/web/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -14,10 +15,10 @@
     <header>
       <div class="logo" aria-hidden="true">🌸</div>
       <div class="header-text">
-        <h1>FLOWER EXCHANGE</h1>
+        <h1>FLOWER EXCHNAGE</h1>
         <p>Execution Report Viewer</p>
       </div>
-      <span class="badge">LSEG · GROUP P</span>
+      <span class="badge">LSEG · Senilka & Neela</span>
     </header>
 
     <div id="statusBanner" class="status-banner hidden"></div>
@@ -26,16 +27,16 @@
       <div id="dropZone" class="upload-zone" role="button" tabindex="0">
         <span class="upload-icon" aria-hidden="true">📂</span>
         <h3>Drop your orders.csv here</h3>
-        <p>or click to browse</p>
+        <p id="uploadHint">Upload a CSV to process it on the engine.</p>
         <div id="fileInfo" class="file-selected hidden">
           <span class="check">✓</span>
           <span id="fileName"></span>
         </div>
         <div class="upload-actions">
-          <button id="sampleBtn" class="btn btn-outline" type="button">⚡ Load Sample Data</button>
-          <button id="downloadBtn" class="btn btn-primary" type="button" disabled>⬇ Download Execution CSV</button>
+          <button id="sampleBtn" class="btn btn-outline" type="button">Load Sample Data</button>
+          <button id="downloadBtn" class="btn btn-primary" type="button" disabled>Download Execution CSV</button>
         </div>
-        <div id="uploadHint" class="upload-hint">Upload a CSV to process it on the engine.</div>
+        
       </div>
       <input id="fileInput" type="file" accept=".csv" aria-label="Upload orders CSV">
     </section>
