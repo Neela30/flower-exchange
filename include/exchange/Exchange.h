@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <mutex>
 #include <shared_mutex>
 #include <string>
@@ -15,7 +16,8 @@
 namespace flower_exchange
 {
 
-    class TimeProvider;
+    class IMatchingStrategy;
+    class ITimeProvider;
 
     /**
      * Routes validated orders to the correct order book and owns the matching engine instance.
@@ -23,14 +25,15 @@ namespace flower_exchange
     class Exchange
     {
     public:
-        explicit Exchange(OrderBookFactory orderBookFactory = OrderBookFactory());
+        explicit Exchange(OrderBookFactory orderBookFactory = OrderBookFactory(),
+                          std::unique_ptr<IMatchingStrategy> matchingStrategy = nullptr);
         ~Exchange();
 
         // Creates one order book per configured instrument.
         void initializeBooks();
 
         // Routes one order to its instrument book.
-        std::vector<ExecutionReport> processOrder(Order order, const TimeProvider &timeProvider);
+        std::vector<ExecutionReport> processOrder(Order order, const ITimeProvider &timeProvider);
 
     private:
         mutable std::shared_mutex orderBooksIndexMutex_;

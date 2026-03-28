@@ -2,17 +2,26 @@
 
 #include <string>
 
-namespace flower_exchange {
+namespace flower_exchange
+{
 
-/**
- * Small utility that returns the current local timestamp string.
- */
-class TimeProvider {
-public:
-    TimeProvider();
-    ~TimeProvider();
+    class ITimeProvider
+    {
+    public:
+        virtual ~ITimeProvider() = default;
+        virtual std::string nowAsString() const = 0;
+    };
 
-    std::string nowAsString() const;
-};
+    /**
+     * Default implementation that returns the current local timestamp string.
+     */
+    class TimeProvider : public ITimeProvider
+    {
+    public:
+        TimeProvider();
+        ~TimeProvider() override;
 
-}  // namespace flower_exchange
+        std::string nowAsString() const override;
+    };
+
+} // namespace flower_exchange
