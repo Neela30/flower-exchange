@@ -14,6 +14,9 @@
 /compile_commands.json
 /Testing/
 
+# IDE and editor settings
+.vscode/
+
 # MSVC / Visual Studio
 /.vs/
 *.sln
@@ -37,6 +40,18 @@
 *.so
 *.dylib
 
+Debug/
+Release/
+x64/
+x86/
+
+# Python artifacts
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+
 # Logs / temp files
 *.log
 *.tmp
@@ -48,6 +63,10 @@
 Thumbs.db
 /.vscode/
 
+Testing/
+
+# Generated runtime data
+output/
 # Runtime outputs
 /output/*
 !/output/.gitkeep

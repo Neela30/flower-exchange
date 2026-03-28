@@ -27,9 +27,13 @@ int main(int argc, char* argv[]) {
         flower_exchange::TraderApplication application;
         application.runParallel(inputPath, outputPath);
         return 0;
-    } catch (const std::exception& exception) {
+    }
+    catch (const std::exception &exception)
+    {
         std::cerr << "FlowerExchange failed: " << exception.what() << '\n';
-    } catch (...) {
+    }
+    catch (...)
+    {
         std::cerr << "FlowerExchange failed with an unknown error.\n";
     }
 

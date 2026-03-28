@@ -10,7 +10,7 @@ OrderSender::OrderSender(ExchangeApplication& exchangeApplication)
 OrderSender::~OrderSender() = default;
 
 std::vector<ExecutionReport> OrderSender::sendOrder(Order order) {
-    // TODO: Add trader-side transport and retry behavior if needed.
+
     return exchangeApplication_.submitOrder(std::move(order));
 }
 

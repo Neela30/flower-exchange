@@ -14,7 +14,7 @@ ExchangeApplication::ExchangeApplication()
 ExchangeApplication::~ExchangeApplication() = default;
 
 std::vector<ExecutionReport> ExchangeApplication::submitOrder(Order order) {
-    // Assign exchange-generated metadata before validation/matching.
+
     order.setOrderId(idGenerator_.nextOrderId());
     order.setSequenceNumber(nextSequenceNumber_.fetch_add(1, std::memory_order_relaxed));
 

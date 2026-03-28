@@ -15,6 +15,7 @@ add_library(flower_exchange_core
     src/trader/OrderSender.cpp
     src/exchange/ExchangeApplication.cpp
     src/exchange/Exchange.cpp
+    src/exchange/OrderBookFactory.cpp
     src/exchange/OrderBook.cpp
     src/exchange/OrderBookSide.cpp
     src/exchange/MatchingEngine.cpp
