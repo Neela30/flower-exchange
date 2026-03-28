@@ -1,55 +1,292 @@
-# Flower Exchange
+# FlowerExchange
 
-A matching engine that ingests CSV orders, validates them, routes them through the exchange, and emits execution reports. The repo now includes a lightweight Flask server plus a neon-inspired frontend so you can upload custom datasets, inspect execution reports, and download the generated CSV.
+FlowerExchange is an order-matching project that reads flower orders from CSV, validates them, routes them into per-instrument order books, matches them using price-time priority, and writes execution reports back to CSV.
 
-## Build the matching engine
+The project is organized as a small exchange system with:
 
-```bash
-cmake -S . -B build
-cmake --build build
+- trader-side orchestration
+- exchange-side validation and routing
+- in-memory order books
+- a matching engine with a Strategy-based matching policy
+- unit, scenario, and large-dataset tests
+
+## Current behavior
+
+- Orders are read from CSV input files.
+- Orders are validated for instrument, side, quantity, and price.
+- Matching uses price-time priority.
+- Trades execute at the resting order price.
+- The default application path currently uses per-instrument parallel processing.
+- Execution reports are written to CSV output files.
+
+## Supported instruments and validation rules
+
+Supported instruments:
+
+- Rose
+- Lavender
+- Lotus
+- Tulip
+- Orchid
+
+Validation rules:
+
+- quantity must be between `10` and `1000`
+- quantity must be in steps of `10`
+- price must be greater than `0`
+- side must map to buy or sell
+
+Accepted side tokens in the CSV parser include:
+
+- `1`, `Buy`, `buy`
+- `2`, `Sell`, `sell`
+
+## Tech stack
+
+- C++17
+- CMake 3.16+
+- Standard library concurrency primitives (`std::async`, `std::mutex`, `std::shared_mutex`, `std::atomic`)
+- Tested with Visual Studio/MSBuild generated builds on Windows
+
+## Project structure
+
+```text
+flower-exchange/
+|-- include/
+|   |-- common/
+|   |-- exchange/
+|   |-- io/
+|   |-- model/
+|   `-- trader/
+|-- src/
+|   |-- common/
+|   |-- exchange/
+|   |-- io/
+|   |-- model/
+|   |-- tools/
+|   `-- trader/
+|-- tests/
+|   `-- include/test_utils/
+|-- data/
+|-- generated_data/
+|-- output/
+|-- build/
+|-- CMakeLists.txt
+`-- README.md
 ```
 
+Folder summary:
 
-The binary accepts optional CLI arguments:
+- `src/`: implementation files for the application, exchange, I/O, model, and tools
+- `include/`: public headers for the project modules
+- `tests/`: executable-style test programs and scenario helpers
+- `data/`: small sample input files used for normal runs and scenario checks
+- `generated_data/`: large generated CSV files for performance and stress tests
+- `output/`: generated execution-report files
+- `build/`: generated build files and compiled binaries
 
-```bash
-# Default sample input/output
-./build/flower_exchange
+## Main executables
 
-# Custom run
-./build/flower_exchange input/orders.csv output/execution_rep.csv
+- `flower_exchange`: main application
+- `large_dataset_generator`: generates large CSV datasets into `generated_data/`
+
+## Prerequisites
+
+You need:
+
+- a C++17-capable compiler
+- CMake 3.16 or newer
+- on Windows, Visual Studio Build Tools or Visual Studio with C++ support installed
+
+## Quick start
+
+### 1. Configure the project
+
+Visual Studio 2019 generator:
+
+```powershell
+cmake -S . -B build -G "Visual Studio 16 2019" -A x64
 ```
 
-## Launch the web experience
+Visual Studio 2022 generator:
 
-1. Ensure the binary above is built (or set `FLOWER_EXCHANGE_BIN` to its path).
-2. Install the small Python dependency set:
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate  # PowerShell on Windows
-   pip install -r server/requirements.txt
-   ```
-3. Start the Flask server:
-   ```bash
-   python server/app.py
-   ```
-4. Open [http://localhost:8080](http://localhost:8080) and use the UI to drag/drop an `orders.csv`, load the curated sample data, filter rows, and download the generated execution report.
+```powershell
+cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+```
 
-> The server looks for the engine in `build/flower_exchange(.exe)` by default. Set `FLOWER_EXCHANGE_BIN` if you keep artifacts elsewhere (for example `build/Debug/flower_exchange.exe`).
+If you already have a preferred generator/toolchain, use that instead as long as it supports C++17.
 
-## API overview
+### 2. Build the project
 
-`POST /api/execute` accepts a multipart form field named `orders`, saves it to a temp location, executes the C++ engine, returns the parsed JSON plus the raw CSV payload. The same Flask app serves everything under `/web`, so the SPA and API share a single origin.
+Debug build:
 
-## Repository structure
+```powershell
+cmake --build build --config Debug
+```
 
-- `src/` & `include/` – core exchange, reader, writer, and trader orchestration code.
-- `tests/` – regression and unit coverage for the engine.
-- `web/` – the static frontend (Space Mono + DM Sans palette, upload zone, stats band, interactive table).
-- `server/` – Flask glue that shells out to the compiled binary, parses the execution report, and exposes the API.
+Release build:
 
-## Next steps
+```powershell
+cmake --build build --config Release
+```
 
-- Extend the API to stream progress updates during large uploads.
-- Containerize the server + engine for easier deployment.
-- Add auth/tenant scoping if you plan to expose the UI beyond local use.
+### 3. Run the application
+
+Run with default paths:
+
+```powershell
+.\build\Debug\flower_exchange.exe
+```
+
+Current defaults:
+
+- input: `data/orders.csv`
+- output: `output/execution_rep.csv`
+
+Run with custom input and output:
+
+```powershell
+.\build\Debug\flower_exchange.exe data/sampleOrder1.csv output/execReports1.csv
+```
+
+## Test commands
+
+Run the whole test suite through CTest:
+
+```powershell
+ctest --test-dir build -C Debug --output-on-failure
+```
+
+Run tests in parallel:
+
+```powershell
+ctest --test-dir build -C Debug -j 4 --output-on-failure
+```
+
+If you want to run a single test executable directly:
+
+```powershell
+.\build\Debug\matching_tests.exe
+.\build\Debug\sample_file_tests.exe
+.\build\Debug\large_dataset_tests.exe
+```
+
+## Large dataset workflow
+
+Generate the large test datasets:
+
+```powershell
+.\build\Debug\large_dataset_generator.exe
+```
+
+This writes datasets such as:
+
+- `generated_data/large_balanced_10k.csv`
+- `generated_data/large_balanced_100k.csv`
+- `generated_data/large_matching_100k.csv`
+- `generated_data/large_non_crossing_100k.csv`
+- `generated_data/large_partial_fill_100k.csv`
+- `generated_data/large_invalid_mix_100k.csv`
+- `generated_data/large_hotspot_100k.csv`
+- `generated_data/large_balanced_1m.csv`
+
+Run the large dataset test after generation:
+
+```powershell
+.\build\Debug\large_dataset_tests.exe
+```
+
+When using `ctest`, dataset generation is already wired in as a fixture step before `LargeDatasetTests`.
+
+## Input and output format
+
+### Input CSV
+
+The application skips the first row as a header and parses each remaining non-empty row into an order.
+
+Typical columns:
+
+```text
+client_order_id,instrument,side,quantity,price
+```
+
+Example:
+
+```text
+client-100,Rose,1,100,55.00
+```
+
+### Output CSV
+
+Execution report columns:
+
+```text
+order_id,client_order_id,instrument,side,status,executed_quantity,executed_price,reason,transaction_time
+```
+
+## Architecture overview
+
+The project uses a practical layered structure:
+
+- `TraderApplication` coordinates end-to-end processing from input file to output file
+- `OrderSender` is the trader-side submission seam into the exchange layer
+- `ExchangeApplication` assigns exchange metadata, validates orders, and delegates processing
+- `Exchange` routes validated orders to the correct instrument book
+- `OrderBook` owns one buy side and one sell side per instrument
+- `OrderBookSide` maintains price-time priority on one side of the book
+- `MatchingEngine` runs the match loop
+- `IMatchingStrategy` defines the match policy seam
+- `PriceTimePriorityStrategy` preserves the current matching policy
+- `CsvOrderReader` and `CsvExecutionReportWriter` handle file I/O
+
+## Matching policy
+
+The current strategy implementation is:
+
+- `PriceTimePriorityStrategy`
+
+That means:
+
+- better price gets priority
+- equal price uses earlier sequence number
+- execution price is the resting order's price
+
+## Concurrency note
+
+The current application path uses per-instrument parallelism:
+
+- orders are grouped by instrument
+- each instrument bucket is processed on its own async task
+- orders remain sequential within each instrument so price-time priority is preserved
+
+This keeps matching behavior intact while allowing different instruments to process concurrently.
+
+## Useful commands
+
+Clean rebuild from scratch:
+
+```powershell
+Remove-Item -Recurse -Force build
+cmake -S . -B build -G "Visual Studio 16 2019" -A x64
+cmake --build build --config Debug
+```
+
+Run the app with a sample file:
+
+```powershell
+.\build\Debug\flower_exchange.exe data/sampleOrder2.csv output/execReports2.csv
+```
+
+Run one scenario-oriented test:
+
+```powershell
+.\build\Debug\scenario_example4_tests.exe
+```
+
+## Notes
+
+- `README.md` documents the current codebase behavior and structure.
+- `generated_data/` can be regenerated at any time using `large_dataset_generator`.
+- `output/` is intended for generated execution reports.
+- The codebase is built around readability and testability rather than external dependencies.
+
