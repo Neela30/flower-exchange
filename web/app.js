@@ -2,7 +2,7 @@ const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const fileInfo = document.getElementById('fileInfo');
 const fileNameLabel = document.getElementById('fileName');
-const sampleBtn = document.getElementById('sampleBtn');
+const browseBtn = document.getElementById('browseBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const statusBanner = document.getElementById('statusBanner');
 const tableBody = document.getElementById('tableBody');
@@ -30,21 +30,6 @@ const statusClassMap = {
   PFill: 'status-pfill',
   Rejected: 'status-reject',
 };
-
-const SAMPLE_DATA = [
-  { orderId: 'ord1', clientOrderId: 'aa13', instrument: 'Rose', side: 'Buy', status: 'New', quantity: 100, price: 55.0, reason: '', timestamp: '20260327-120000.000' },
-  { orderId: 'ord2', clientOrderId: 'aa14', instrument: 'Rose', side: 'Buy', status: 'New', quantity: 100, price: 65.0, reason: '', timestamp: '20260327-120001.000' },
-  { orderId: 'ord3', clientOrderId: 'aa15', instrument: 'Rose', side: 'Sell', status: 'PFill', quantity: 100, price: 65.0, reason: '', timestamp: '20260327-120002.000' },
-  { orderId: 'ord2', clientOrderId: 'aa14', instrument: 'Rose', side: 'Buy', status: 'Fill', quantity: 100, price: 65.0, reason: '', timestamp: '20260327-120002.001' },
-  { orderId: 'ord3', clientOrderId: 'aa15', instrument: 'Rose', side: 'Sell', status: 'PFill', quantity: 100, price: 55.0, reason: '', timestamp: '20260327-120002.002' },
-  { orderId: 'ord1', clientOrderId: 'aa13', instrument: 'Rose', side: 'Buy', status: 'Fill', quantity: 100, price: 55.0, reason: '', timestamp: '20260327-120002.003' },
-  { orderId: 'ord4', clientOrderId: 'aa16', instrument: 'Rose', side: 'Buy', status: 'Fill', quantity: 100, price: 1.0, reason: '', timestamp: '20260327-120003.000' },
-  { orderId: 'ord3', clientOrderId: 'aa15', instrument: 'Rose', side: 'Sell', status: 'Fill', quantity: 100, price: 1.0, reason: '', timestamp: '20260327-120003.001' },
-  { orderId: 'ord5', clientOrderId: 'aa17', instrument: '', side: 'Buy', status: 'Rejected', quantity: 100, price: 55.0, reason: 'Invalid instrument', timestamp: '20260327-120004.000' },
-  { orderId: 'ord6', clientOrderId: 'aa18', instrument: 'Rose', side: 'Sell', status: 'Rejected', quantity: 100, price: 65.0, reason: 'Invalid side', timestamp: '20260327-120004.001' },
-  { orderId: 'ord7', clientOrderId: 'aa19', instrument: 'Lavender', side: 'Sell', status: 'Rejected', quantity: 101, price: 1.0, reason: 'Invalid size', timestamp: '20260327-120004.002' },
-  { orderId: 'ord8', clientOrderId: 'aa20', instrument: 'Tulip', side: 'Buy', status: 'Rejected', quantity: 100, price: -1.0, reason: 'Invalid price', timestamp: '20260327-120004.003' },
-];
 
 let allData = [];
 let currentFilter = 'ALL';
@@ -97,8 +82,8 @@ function normalizeSide(value) {
 
 function normalizeReports(reports) {
   return reports.map((report) => ({
-    orderId: report.orderId || '—',
-    clientOrderId: report.clientOrderId || '—',
+    orderId: report.orderId || '-',
+    clientOrderId: report.clientOrderId || '-',
     instrument: report.instrument || '',
     side: normalizeSide(report.side),
     status: normalizeStatus(report.status),
@@ -126,7 +111,7 @@ function renderEmptyState(message) {
     <tr>
       <td colspan="9">
         <div class="empty-state">
-          <div class="icon" aria-hidden="true">🌷</div>
+          <div class="icon" aria-hidden="true">&#127803;</div>
           <p>${message}</p>
         </div>
       </td>
@@ -136,7 +121,7 @@ function renderEmptyState(message) {
 function renderTable(data) {
   if (!data.length) {
     const message = currentFilter === 'ALL' && allData.length === 0
-      ? 'Load an orders.csv or use sample data to see execution reports'
+      ? 'Load an orders.csv to see execution reports'
       : 'No records found.';
     renderEmptyState(message);
     return;
@@ -149,11 +134,11 @@ function renderTable(data) {
       const sideLabel = row.side === 'Buy' ? 'BUY' : 'SELL';
       const flowerClass = flowerColors[row.instrument] || 'rose';
       const delay = Math.min(index * 30, 300);
-      const priceValue = Number.isFinite(row.price) ? row.price.toFixed(2) : '—';
-      const quantityValue = Number.isFinite(row.quantity) ? row.quantity : '—';
+      const priceValue = Number.isFinite(row.price) ? row.price.toFixed(2) : '-';
+      const quantityValue = Number.isFinite(row.quantity) ? row.quantity : '-';
       const reason = row.reason || '';
       const timestamp = row.timestamp || '';
-      const instrument = row.instrument || '<span style="color:var(--muted)">—</span>';
+      const instrument = row.instrument || '<span style="color:var(--muted)">-</span>';
 
       return `
         <tr style="animation-delay:${delay}ms">
@@ -207,14 +192,15 @@ function triggerDownload() {
   if (!csvCache) {
     return;
   }
+
   const blob = new Blob([csvCache], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'execution_report.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'execution_report.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
 
@@ -274,7 +260,10 @@ function handleDrop(event) {
 }
 
 function initDragAndDrop() {
-  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('click', () => {
+    fileInput.click();
+  });
+
   dropZone.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -291,16 +280,6 @@ function initDragAndDrop() {
   dropZone.addEventListener('drop', handleDrop);
 }
 
-function loadSampleData() {
-  allData = normalizeReports(SAMPLE_DATA);
-  updateStats(allData);
-  enableDownload(buildCsvFromReports(allData));
-  setStatus('Sample dataset loaded.', 'success');
-  fileInfo.classList.remove('hidden');
-  fileNameLabel.textContent = 'sample_data.csv';
-  filterTable('ALL');
-}
-
 function initFilters() {
   pills.forEach((pill) => {
     pill.addEventListener('click', () => {
@@ -313,8 +292,15 @@ function init() {
   initDragAndDrop();
   initFilters();
   fileInput.addEventListener('change', handleFileSelection);
-  sampleBtn.addEventListener('click', loadSampleData);
-  downloadBtn.addEventListener('click', triggerDownload);
+
+  browseBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    triggerDownload();
+  });
+
   filterTable('ALL');
 }
 
