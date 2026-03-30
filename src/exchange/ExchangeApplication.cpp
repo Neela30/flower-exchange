@@ -1,42 +1,54 @@
 #include "exchange/ExchangeApplication.h"
 
+#include <memory>
 #include <utility>
 
-namespace flower_exchange {
+#include "exchange/PriceTimePriorityStrategy.h"
 
-ExchangeApplication::ExchangeApplication()
-    : validator_(),
-      exchange_(),
-      idGenerator_(),
-      timeProvider_(),
-      nextSequenceNumber_(1) {}
+namespace flower_exchange
+{
 
-ExchangeApplication::~ExchangeApplication() = default;
+    ExchangeApplication::ExchangeApplication(std::shared_ptr<ITimeProvider> timeProvider,
+                                             std::unique_ptr<IMatchingStrategy> matchingStrategy,
+                                             OrderBookFactory orderBookFactory)
+        : validator_(),
+          exchange_(std::move(orderBookFactory),
+                    matchingStrategy ? std::move(matchingStrategy)
+                                     : std::make_unique<PriceTimePriorityStrategy>()),
+          idGenerator_(),
+          timeProvider_(timeProvider ? std::move(timeProvider)
+                                     : std::make_shared<TimeProvider>()),
+          nextSequenceNumber_(1) {}
 
-std::vector<ExecutionReport> ExchangeApplication::submitOrder(Order order) {
+    ExchangeApplication::~ExchangeApplication() = default;
 
-    order.setOrderId(idGenerator_.nextOrderId());
-    order.setSequenceNumber(nextSequenceNumber_.fetch_add(1, std::memory_order_relaxed));
+    std::vector<ExecutionReport> ExchangeApplication::submitOrder(Order order)
+    {
 
-    std::string reason;
-    if (!validator_.validate(order, reason)) {
-        return {createRejectedReport(order, reason)};
+        order.setOrderId(idGenerator_.nextOrderId());
+        order.setSequenceNumber(nextSequenceNumber_.fetch_add(1, std::memory_order_relaxed));
+
+        std::string reason;
+        if (!validator_.validate(order, reason))
+        {
+            return {createRejectedReport(order, reason)};
+        }
+
+        return exchange_.processOrder(std::move(order), *timeProvider_);
     }
 
-    return exchange_.processOrder(std::move(order), timeProvider_);
-}
+    ExecutionReport ExchangeApplication::createRejectedReport(const Order &order,
+                                                              const std::string &reason) const
+    {
+        return ExecutionReport(order.getOrderId(),
+                               order.getClientOrderId(),
+                               order.getInstrument(),
+                               order.getSide(),
+                               ExecStatus::Rejected,
+                               order.getQuantity(),
+                               order.getPrice(),
+                               reason,
+                               timeProvider_->nowAsString());
+    }
 
-ExecutionReport ExchangeApplication::createRejectedReport(const Order& order,
-                                                          const std::string& reason) const {
-    return ExecutionReport(order.getOrderId(),
-                           order.getClientOrderId(),
-                           order.getInstrument(),
-                           order.getSide(),
-                           ExecStatus::Rejected,
-                           order.getQuantity(),
-                           order.getPrice(),
-                           reason,
-                           timeProvider_.nowAsString());
-}
-
-}  // namespace flower_exchange
+} // namespace flower_exchange

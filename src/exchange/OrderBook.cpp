@@ -5,56 +5,63 @@
 #include "exchange/MatchingEngine.h"
 #include "io/TimeProvider.h"
 
-namespace flower_exchange {
+namespace flower_exchange
+{
 
-OrderBook::OrderBook(std::string instrument, MatchingEngine& matchingEngine):
-    instrument_(std::move(instrument)),
-    buySide_(Side::Buy),
-    sellSide_(Side::Sell),
-    matchingEngine_(matchingEngine) {}
+    OrderBook::OrderBook(std::string instrument, MatchingEngine &matchingEngine) : instrument_(std::move(instrument)),
+                                                                                   buySide_(Side::Buy),
+                                                                                   sellSide_(Side::Sell),
+                                                                                   matchingEngine_(matchingEngine) {}
 
-OrderBook::~OrderBook() = default;
+    OrderBook::~OrderBook() = default;
 
-std::vector<ExecutionReport> OrderBook::processOrder(Order order, const TimeProvider& timeProvider) {
-    OrderBookSide& sameSide = order.isBuy() ? buySide_ : sellSide_;
-    OrderBookSide& oppositeSide = order.isBuy() ? sellSide_ : buySide_;
+    std::vector<ExecutionReport> OrderBook::processOrder(Order order, const ITimeProvider &timeProvider)
+    {
+        OrderBookSide &sameSide = order.isBuy() ? buySide_ : sellSide_;
+        OrderBookSide &oppositeSide = order.isBuy() ? sellSide_ : buySide_;
 
-    auto executionReports = matchingEngine_.match(order, oppositeSide, sameSide, timeProvider);
+        auto executionReports = matchingEngine_.match(order, oppositeSide, sameSide, timeProvider);
 
-    if (!order.isFilled()) {
-        executionReports.emplace_back(
-            order.getOrderId(),
-            order.getClientOrderId(),
-            order.getInstrument(),
-            order.getSide(),
-            order.isPartiallyFilled() ? ExecStatus::Pfill : ExecStatus::New,
-            0,
-            0.0,
-            std::string{},
-            timeProvider.nowAsString());
+        if (!order.isFilled())
+        {
+            executionReports.emplace_back(
+                order.getOrderId(),
+                order.getClientOrderId(),
+                order.getInstrument(),
+                order.getSide(),
+                order.isPartiallyFilled() ? ExecStatus::Pfill : ExecStatus::New,
+                0,
+                0.0,
+                std::string{},
+                timeProvider.nowAsString());
+        }
+
+        return executionReports;
     }
 
-    return executionReports;
-}
+    const std::string &OrderBook::getInstrument() const
+    {
+        return instrument_;
+    }
 
-const std::string& OrderBook::getInstrument() const {
-    return instrument_;
-}
+    OrderBookSide &OrderBook::getBuySide()
+    {
+        return buySide_;
+    }
 
-OrderBookSide& OrderBook::getBuySide() {
-    return buySide_;
-}
+    OrderBookSide &OrderBook::getSellSide()
+    {
+        return sellSide_;
+    }
 
-OrderBookSide& OrderBook::getSellSide() {
-    return sellSide_;
-}
+    const OrderBookSide &OrderBook::getBuySide() const
+    {
+        return buySide_;
+    }
 
-const OrderBookSide& OrderBook::getBuySide() const {
-    return buySide_;
-}
+    const OrderBookSide &OrderBook::getSellSide() const
+    {
+        return sellSide_;
+    }
 
-const OrderBookSide& OrderBook::getSellSide() const {
-    return sellSide_;
-}
-
-}  // namespace flower_exchange
+} // namespace flower_exchange

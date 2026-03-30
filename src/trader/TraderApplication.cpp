@@ -38,7 +38,7 @@ void TraderApplication::runParallel(const std::string& inputFile, const std::str
     std::map<std::string, std::vector<Order>> ordersByInstrument;
 
     for (auto& order : orders) {
-        // Group by instrument while preserving arrival order inside each bucket.
+
         ordersByInstrument[order.getInstrument()].push_back(std::move(order));
     }
 

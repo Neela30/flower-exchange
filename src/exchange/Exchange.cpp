@@ -10,10 +10,11 @@
 namespace flower_exchange
 {
 
-    Exchange::Exchange(OrderBookFactory orderBookFactory)
+    Exchange::Exchange(OrderBookFactory orderBookFactory,
+                       std::unique_ptr<IMatchingStrategy> matchingStrategy)
         : orderBooks_(),
           orderBookMutexes_(),
-          matchingEngine_(),
+          matchingEngine_(std::move(matchingStrategy)),
           orderBookFactory_(std::move(orderBookFactory))
     {
         initializeBooks();
@@ -35,7 +36,7 @@ namespace flower_exchange
     }
 
     std::vector<ExecutionReport> Exchange::processOrder(Order order,
-                                                        const TimeProvider &timeProvider)
+                                                        const ITimeProvider &timeProvider)
     {
         // Shared lock protects map/index lifetime while allowing concurrent reads.
         std::shared_lock<std::shared_mutex> indexLock(orderBooksIndexMutex_);

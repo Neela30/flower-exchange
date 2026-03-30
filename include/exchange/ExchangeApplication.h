@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -12,28 +13,35 @@
 #include "model/ExecutionReport.h"
 #include "model/Order.h"
 
-namespace flower_exchange {
+namespace flower_exchange
+{
 
-/**
- * Exchange-side application service that assigns metadata, validates, and delegates processing.
- */
-class ExchangeApplication {
-public:
-    ExchangeApplication();
-    ~ExchangeApplication();
+    class IMatchingStrategy;
+    class ITimeProvider;
 
-    // Assigns exchange metadata, validates, and routes one order.
-    std::vector<ExecutionReport> submitOrder(Order order);
+    /**
+     * Exchange-side application service that assigns metadata, validates, and delegates processing.
+     */
+    class ExchangeApplication
+    {
+    public:
+        ExchangeApplication(std::shared_ptr<ITimeProvider> timeProvider = nullptr,
+                            std::unique_ptr<IMatchingStrategy> matchingStrategy = nullptr,
+                            OrderBookFactory orderBookFactory = OrderBookFactory());
+        ~ExchangeApplication();
 
-    // Builds a rejected execution report for a failed order.
-    ExecutionReport createRejectedReport(const Order& order, const std::string& reason) const;
+        // Assigns exchange metadata, validates, and routes one order.
+        std::vector<ExecutionReport> submitOrder(Order order);
 
-private:
-    Validator validator_;
-    Exchange exchange_;
-    IdGenerator idGenerator_;
-    TimeProvider timeProvider_;
-    std::atomic<std::uint64_t> nextSequenceNumber_;
-};
+        // Builds a rejected execution report for a failed order.
+        ExecutionReport createRejectedReport(const Order &order, const std::string &reason) const;
 
-}  // namespace flower_exchange
+    private:
+        Validator validator_;
+        Exchange exchange_;
+        IdGenerator idGenerator_;
+        std::shared_ptr<ITimeProvider> timeProvider_;
+        std::atomic<std::uint64_t> nextSequenceNumber_;
+    };
+
+} // namespace flower_exchange

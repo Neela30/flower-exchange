@@ -283,10 +283,30 @@ Run one scenario-oriented test:
 .\build\Debug\scenario_example4_tests.exe
 ```
 
+## Frontend viewer
+
+The `web/` folder contains a lightweight execution-report viewer that talks to a Flask bridge in `server/`. To launch it locally:
+
+1. Build `flower_exchange` first so the Flask app can find the binary (or set `FLOWER_EXCHANGE_BIN` to the compiled executable).
+2. Create/activate a Python environment and install the single dependency:
+
+   ```powershell
+   python -m venv .venv
+   . .\.venv\Scripts\Activate.ps1
+   pip install -r server/requirements.txt
+   ```
+
+3. Start the Flask server:
+
+   ```powershell
+   python server/app.py
+   ```
+
+4. Visit http://localhost:8080 to load the viewer. Use the “Load Sample Data” button or upload a CSV; the server pipes the file into `flower_exchange` and streams the execution reports back to the UI. Set `FLOWER_EXCHANGE_BIN` if your binary lives outside `build/`.
+
 ## Notes
 
 - `README.md` documents the current codebase behavior and structure.
 - `generated_data/` can be regenerated at any time using `large_dataset_generator`.
 - `output/` is intended for generated execution reports.
 - The codebase is built around readability and testability rather than external dependencies.
-

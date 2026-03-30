@@ -134,14 +134,13 @@ namespace flower_exchange
         bool isFirstRow = true;
         while (std::getline(input, line))
         {
-            // Skip the header row.
+       
             if (isFirstRow)
             {
                 isFirstRow = false;
                 continue;
             }
 
-            // Ignore empty rows.
             if (isEmptyLine(line))
             {
                 continue;
@@ -171,9 +170,14 @@ namespace flower_exchange
         }
 
         const std::size_t priceCommaPosition = remaining.find(',');
-        fields[4] = priceCommaPosition == std::string_view::npos
-                        ? remaining
-                        : remaining.substr(0, priceCommaPosition);
+        if (priceCommaPosition == std::string_view::npos)
+        {
+            fields[4] = remaining;
+        }
+        else
+        {
+            fields[4] = remaining.substr(0, priceCommaPosition);
+        }
 
         const std::string_view clientOrderIdView = trimView(fields[0]);
         const std::string_view instrumentView = trimView(fields[1]);
